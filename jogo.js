@@ -78,6 +78,14 @@ const flappyBird = {
     altura: 24,
     x: 10,
     y: 50,
+    gravidade: 0.25,
+    velocidade: 0,
+    atualiza() {
+        // Cada vez que for chamada a velocidade vai somar com a gravidade
+        flappyBird.velocidade = flappyBird.velocidade + flappyBird.gravidade
+        // Cair o FlappyBird sempre coma velocidade que é aumentada
+        flappyBird.y = flappyBird.y + flappyBird.velocidade;
+    },
     desenhar() {
         // Pega o stripe e pega onde ele está localizado e como posicionalo, com qual altura e largura
         contexto.drawImage(
@@ -90,16 +98,81 @@ const flappyBird = {
     },
 };
 
+// Mensagem Inicial
+const mensagemGetReady = {
+    sX: 134,
+    sY: 0,
+    w: 174,
+    h: 152,
+    x: (canvas.width / 2) - 174 / 2,
+    y: 50,
+    desenhar() {
+        contexto.drawImage(
+            sprites,
+            mensagemGetReady.sX, mensagemGetReady.sY,
+            mensagemGetReady.w, mensagemGetReady.h,
+            mensagemGetReady.x, mensagemGetReady.y,
+            mensagemGetReady.w, mensagemGetReady.h
+        );
+    } 
+}
+
+// Telas
+let telaAtiva = {};
+function mudarParaTela(novaTela) {
+    telaAtiva = novaTela;
+}
+
+const Telas = {
+    INICIO: {
+        desenhar() {
+            // Renderizando o plano de fundo
+            planoDeFundo.desenhar();
+            // Renderizando o chão
+            chao.desenhar();
+            // Renderizando o flappyBird
+            flappyBird.desenhar();
+            // Mensagem Inicial
+            mensagemGetReady.desenhar();
+        },
+        click() {
+            mudarParaTela(Telas.JOGO)
+        },
+        atualiza() {
+
+        }
+    }
+};
+
+Telas.JOGO = {
+    desenhar() {
+        // Renderizando o plano de fundo
+        planoDeFundo.desenhar();
+        // Renderizando o chão
+        chao.desenhar();
+        // Renderizando o flappyBird
+        flappyBird.desenhar();
+    },
+    atualiza() {
+        flappyBird.atualiza();
+    }
+};
+
 function loop() {
     // Esse loop vai ser execultado e cada execução vai redenrizar algo na tela
 
-    // Renderizando o flappyBird
-    planoDeFundo.desenhar();
-    chao.desenhar();
-    flappyBird.desenhar();
+    telaAtiva.desenhar();
+    telaAtiva.atualiza();
 
     // Ajuda a desenhar na tela de forma infinita na tela de forma inteligente
     requestAnimationFrame(loop);
 }
 
+window.addEventListener('click', function() {
+    if(telaAtiva.click) {
+        telaAtiva.click();
+    }
+})
+
+mudarParaTela(Telas.INICIO);
 loop();
